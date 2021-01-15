@@ -161,11 +161,12 @@ function check_project_id_is_valid {
 
 
 function check_quota_is_sufficient {
+
   api=$(gcloud services list --format=json --filter=name:$COMPUTE_API)
   if [[ "$api" != *"$COMPUTE_API"* ]]; then
-    echo "WARNING: Unable to verify compute quota because $COMPUTE_API in project $PROJECT_ID is not enabled. Please run 'gcloud services enable $COMPUTE_API' before trying again."
-    return
-  fi
+    echo
+    echo "WARNING: Unable to compute quota verify if you have the necessary permission to create a service account with the required IAM policy. Please verify manually that you have iam.serviceAccounts.create and iam.serviceAccounts.setIamPolicy permissions, and then proceed with deployment.  https://console.cloud.google.com/iam-admin/iam?project=$PROJECT_ID  You can also disregard this warning, if you will be providing your own pre-existing service account."
+    echo
 
   quota=$(gcloud compute regions describe ${REGION} --flatten quotas --format="csv(quotas.metric,quotas.limit,quotas.usage)"|egrep '^CPUS,')
   limit=$(echo $quota | awk -F, '{print $2}' | awk -F. '{print $1}' )
